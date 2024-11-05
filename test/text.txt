@@ -1,0 +1,2 @@
+Hello from the server and return the result from     the server as  a string or 
+my string from the server and return the result from the server as a string
