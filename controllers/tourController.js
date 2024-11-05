@@ -31,7 +31,6 @@ exports.getAllTours = async (req, res) => {
     }
 
     // Pagination
-
     const page = req.query.page * 1;
     const limit = req.query.limit * 1;
     const skip = (page - 1) * limit;
@@ -43,6 +42,7 @@ exports.getAllTours = async (req, res) => {
       if (skip > newTours) throw new Error("this page doesn't exist");
     }
 
+    // Execution
     const tours = await query;
 
     res.status(200).json({
