@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+const validator = require("validator"); // used for strings only
 
 const tourSchema = new mongoose.Schema(
   {
@@ -7,6 +8,8 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, "A tour must have a name"],
       unique: true,
+      trim: true,
+      validate: validator.isAlpha,
     },
     slug: String,
     ratingsAverage: {
@@ -21,7 +24,15 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, "A tour must have a price"],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        message: "discount wrong",
+      },
+    },
 
     summary: {
       type: String,
@@ -39,6 +50,10 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, "A tour must have a difficulty"],
+      enum: {
+        values: ["easy", "medium", "difficult"],
+        message: "wrong",
+      },
     },
     imageCover: {
       type: String,
@@ -51,6 +66,10 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     // added to enable virtual
@@ -67,6 +86,17 @@ tourSchema.virtual("durationWeeks").get(function () {
 
 tourSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+tourSchema.pre("/^find/", function (next) {
+  // /^find/ means all commands that begin with find like findOne
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
+
+tourSchema.pre("aggregate", function () {
+  this.pipeline().unshift({ $match: { $secretTour: { $ne: true } } });
   next();
 });
 
