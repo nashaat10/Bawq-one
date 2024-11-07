@@ -10,11 +10,14 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       validate: validator.isAlpha,
+      minLength: [10, "name must be at least 10 char"],
     },
     slug: String,
     ratingsAverage: {
       type: Number,
       default: 4.5,
+      minLength: [0, "enter number between 0 and 5"],
+      maxLength: 5,
     },
     ratingsQuantity: {
       type: Number,

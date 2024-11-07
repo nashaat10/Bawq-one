@@ -10,6 +10,12 @@ const handelDuplicateFields = (err) => {
   return new AppError(message, 400);
 };
 
+const handelValidationError = (err) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
+  const message = `Invalid Input data.${errors.join(". ")}`;
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -43,8 +49,10 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === "production") {
     let error = err; // can't use destructuring
 
+    console.log(error.name);
     if (error.name === "CastError") error = handelCastError(error);
     if (error.code === 11000) error = handelDuplicateFields(error);
+    if (error.name === "ValidationError") error = handelValidationError(error);
 
     sendErrorProd(error, res);
   }
