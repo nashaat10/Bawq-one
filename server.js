@@ -3,6 +3,11 @@ const app = require("./app");
 dotenv.config({ path: "./config.env" });
 const mongoose = require("mongoose");
 
+process.on("unhandledException", (err) => {
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 const DB = process.env.DATABASE_URL;
 
 mongoose.connect(DB).then(() => {
