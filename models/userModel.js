@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
       message: "Passwords are not the same",
     },
   },
+  user: {
+    type: String,
+    enum: ["user", "admin", "guide"],
+  },
 });
 
 userSchema.pre("save", async function (next) {
