@@ -1,6 +1,17 @@
-exports.getAllUsers = (req, res) => {};
-exports.createUser = (req, res) => {};
+const User = require("../models/userModel");
+const AppError = require("../utils/AppError");
+const catchAsync = require("../utils/catchAsync");
 
-exports.updateUser = (req, res) => {};
-exports.getUser = (req, res) => {};
-exports.deleteUser = (req, res) => {};
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    status: "Success",
+    data: {
+      users,
+    },
+  });
+});
+
+exports.updateUser = catchAsync(async (req, res) => {});
+exports.getUser = catchAsync(async (req, res) => {});
+exports.deleteUser = catchAsync(async (req, res) => {});
