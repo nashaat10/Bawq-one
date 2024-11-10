@@ -47,7 +47,7 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
-    let error = err; // can't use destructuring like {...xaaerr}
+    let error = err; // can't use destructuring like {...err}
 
     console.log(error.name);
     if (error.name === "CastError") error = handelCastError(error);
