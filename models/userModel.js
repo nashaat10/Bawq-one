@@ -9,9 +9,9 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "user must have an email"],
-    unique: true,
     lowerCase: true,
     validate: [validator.isEmail, "please provide a valid email "],
+    unique: true,
   },
   photo: String,
   password: {
@@ -22,8 +22,16 @@ const userSchema = new mongoose.Schema({
   confirmPassword: {
     type: String,
     required: [true, "confirm your password"],
+    validate: {
+      validator: function (el) {
+        return el === this.password;
+      },
+      message: "Passwords are not the same",
+    },
   },
 });
+
+userSchema.pre("save", function (next) {});
 
 const User = mongoose.model("User", userSchema);
 
