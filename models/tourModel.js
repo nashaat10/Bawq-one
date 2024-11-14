@@ -116,12 +116,13 @@ tourSchema.pre("save", function (next) {
   next();
 });
 
-tourSchema.pre("save", async function (next) {
-  const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+// tour embedding
+// tourSchema.pre("save", async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
 
-  this.guides = await Promise.all(guidesPromises);
-  next();
-});
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
 
 tourSchema.pre("/^find/", function (next) {
   // /^find/ means all commands that begin with find like findOne
