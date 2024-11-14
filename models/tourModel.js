@@ -74,6 +74,27 @@ const tourSchema = new mongoose.Schema(
       default: false,
       select: false,
     },
+    startLocation: {
+      type: {
+        type: String,
+        default: "point",
+        enum: ["point"],
+      },
+      coordinates: [Number],
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "point",
+          enum: ["point"],
+        },
+        coordination: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
   },
   {
     // added to enable virtual
