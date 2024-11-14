@@ -50,7 +50,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// instant method that can be used in over all the app
+// instant method is a method that can be used in over all the app
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
