@@ -12,17 +12,31 @@ const signToken = (id) => {
   }); //(payload:(data that we want to put in jwt) , secret)
 };
 
-exports.signUp = catchAsync(async (req, res, next) => {
-  const newUser = await User.create(req.body);
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  const cookieOption = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === "production") cookieOption.secure = true;
 
-  const token = signToken(newUser._id);
-  res.status(201).json({
+  res.cookie("jwt", token, cookieOption);
+  user.password = undefined;
+  res.status(statusCode).json({
     status: "Success",
     token,
     data: {
-      user: newUser,
+      user,
     },
   });
+};
+
+exports.signUp = catchAsync(async (req, res, next) => {
+  const newUser = await User.create(req.body);
+
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -35,12 +49,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     next(new AppError("Incorrect email or password", 401));
   }
-
-  const token = signToken(user.id);
-  res.status(201).json({
-    status: "Success",
-    token,
-  });
+  createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
