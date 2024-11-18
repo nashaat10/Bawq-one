@@ -58,12 +58,18 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
   console.log(stats);
 
   // save statistics to the current tour
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].nRatings,
-    ratingsAverage: stats[0].avgRatings,
-  });
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRatings,
+      ratingsAverage: stats[0].avgRatings,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
 };
-
 reviewSchema.post("save", function () {
   //[this.constructor === Review ] we use this.constructor because Review is not defined yet
   this.constructor.calcAverageRatings(this.tour);
