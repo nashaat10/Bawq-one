@@ -8,9 +8,7 @@ const tourSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "A tour must have a name"],
-      unique: true,
       trim: true,
-      validate: validator.isAlpha,
       minLength: [10, "name must be at least 10 char"],
     },
     slug: String,
@@ -82,6 +80,10 @@ const tourSchema = new mongoose.Schema(
         enum: ["point"],
       },
       coordinates: [Number],
+    },
+    active: {
+      type: Boolean,
+      default: true,
     },
     locations: [
       {
