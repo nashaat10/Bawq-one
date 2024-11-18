@@ -110,6 +110,9 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+tourSchema.index({ price: -1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // virtual properties are not stored in the database but are calculated on the fly when we get some data from the database
 //or when we send data to the client
 tourSchema.virtual("durationWeeks").get(function () {
