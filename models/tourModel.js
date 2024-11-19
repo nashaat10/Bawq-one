@@ -77,10 +77,11 @@ const tourSchema = new mongoose.Schema(
     startLocation: {
       type: {
         type: String,
-        default: "point",
-        enum: ["point"],
+        enum: ["Point"],
       },
-      coordinates: [Number],
+      coordinates: {
+        type: [Number],
+      },
     },
     active: {
       type: Boolean,
@@ -115,7 +116,7 @@ const tourSchema = new mongoose.Schema(
 
 tourSchema.index({ price: -1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
-tourSchema.index({ startLocation: "2d sphere" });
+tourSchema.index({ startLocation: "2dsphere" });
 
 // virtual properties are not stored in the database but are calculated on the fly when we get some data from the database
 //or when we send data to the client
@@ -156,10 +157,10 @@ tourSchema.pre("/^find/", function (next) {
   next();
 });
 
-tourSchema.pre("aggregate", function (next) {
-  this.pipeline().unshift({ $match: { $secretTour: { $ne: true } } });
-  next();
-});
+// tourSchema.pre("aggregate", function (next) {
+//   this.pipeline().unshift({ $match: { $secretTour: { $ne: true } } });
+//   next();
+// });
 
 const Tour = mongoose.model("Tour", tourSchema);
 
