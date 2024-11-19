@@ -14,6 +14,10 @@ router.use("/:tourId/reviews", reviewRouter);
 
 router.route("/tour-stats").get(tourController.getTourStates);
 router.route("/monthly-plan/:year").get(tourController.getMonthlyPlan);
+
+router
+  .route("/tours-within/:distance/center/:latlng/unit/:unit")
+  .get(tourController.getTourWithin);
 router
   .route("/")
   .get(tourController.getAllTours)
