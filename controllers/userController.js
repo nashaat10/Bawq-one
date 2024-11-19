@@ -40,3 +40,35 @@ exports.getMe = catchAsync(async (req, res, next) => {
   req.params.id = req.user.id;
   next();
 });
+
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
+
+exports.updateMe = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.confirmPassword) {
+    return next(
+      new AppError("you cant update your password using this route", 400)
+    );
+  }
+
+  const filteredBody = filterObj(req.body, "name", "email");
+
+  if (req.file) filteredBody.photo = req.file.filename;
+
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: "message",
+    user: {
+      updatedUser,
+    },
+  });
+});
