@@ -24,6 +24,7 @@ router.route("/").get(userController.getAllUsers);
 router.patch(
   "/updateMe",
   userController.uploadUserPhoto,
+  userController.resizeUserPhoto,
   userController.updateMe
 );
 router
