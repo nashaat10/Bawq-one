@@ -26,6 +26,8 @@ router
   .post(
     AuthController.protect,
     AuthController.restrictTo("admin", "lead-guide"),
+    tourController.uploadTourImages,
+    tourController.resizeTourImages,
     tourController.createTour
   );
 
@@ -35,6 +37,8 @@ router
   .patch(
     AuthController.protect,
     AuthController.restrictTo("admin", "lead-guide"),
+    tourController.uploadTourImages,
+    tourController.resizeTourImages,
     tourController.updateTour
   )
   .delete(

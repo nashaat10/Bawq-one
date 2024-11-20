@@ -1,7 +1,43 @@
+const multer = require("multer");
 const Tour = require("../models/tourModel");
 const APIFeatures = require("../utils/ApiFeatures");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
+const sharp = require("sharp");
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new AppError("Not an image , Please upload only images"));
+  }
+};
+
+const upload = multer({
+  fileFilter: multerFilter,
+  storage: multerStorage,
+});
+
+exports.uploadTourImages = upload.fields([
+  { name: "imageCover", maxCount: 1 },
+  { name: "images", maxCount: 3 },
+]);
+
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
+  if (!req.files.imageCover && !req.files.images) return next();
+
+  // 1) Cover image
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+
+  next();
+});
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
   // Execution
@@ -44,6 +80,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
 });
 
 exports.updateTour = catchAsync(async (req, res, next) => {
+  console.log(req.body.imageCover);
   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -178,7 +215,7 @@ exports.getTourWithin = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getDistances = catchAsync(async (req, res) => {
+exports.getDistances = catchAsync(async (req, res, next) => {
   const { latlng, unit } = req.params;
   const [lat, lng] = latlng.split(",");
 
