@@ -64,8 +64,9 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 
 exports.getUser = catchAsync(async (req, res, next) => {
   const userId = req.params.id;
-
+  // console.time("redis");
   const cashedUser = await redisClient.get(userId);
+  // console.timeEnd("redis");
   if (cashedUser) {
     console.log("cache hit");
     const user = JSON.parse(cashedUser);
