@@ -2,7 +2,6 @@ const dotenv = require("dotenv");
 const app = require("./app");
 dotenv.config({ path: "./config.env" });
 const mongoose = require("mongoose");
-require("./config/redis");
 
 process.on("unhandledException", (err) => {
   console.log(err.name, err.message);

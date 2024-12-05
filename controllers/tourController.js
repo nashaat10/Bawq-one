@@ -5,8 +5,6 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const sharp = require("sharp");
 const redis = require("redis");
-// const { Types } = require("mongoose");
-// const { redisClient } = require("../config/redis");
 
 const redisClient = redis.createClient();
 redisClient.on("error", (err) => {
