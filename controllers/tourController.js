@@ -4,6 +4,16 @@ const APIFeatures = require("../utils/ApiFeatures");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const sharp = require("sharp");
+const redis = require("redis");
+// const { Types } = require("mongoose");
+// const { redisClient } = require("../config/redis");
+
+const redisClient = redis.createClient();
+redisClient.on("error", (err) => {
+  console.log(err);
+});
+
+redisClient.connect();
 
 const multerStorage = multer.memoryStorage();
 
@@ -57,6 +67,8 @@ exports.resizeTourImages = catchAsync(async (req, res, next) => {
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
   // Execution
+  redisClient.get("tours", async (err, tours) => {});
+
   const features = new APIFeatures(Tour.find(), req.query)
     .filter()
     .sort()
@@ -82,11 +94,39 @@ exports.createTour = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 exports.getTour = catchAsync(async (req, res, next) => {
+  // if (!Types.ObjectId.isValid(tourId)) {
+  //   return next(new AppError("Invalid ID", 400));
+  // }
+  const tourId = req.params.id;
+
+  // 1) get data from redis if exist
+  const tourCached = await redisClient.get(tourId);
+
+  // 2) if exist return response
+  if (tourCached) {
+    console.log("cache hit");
+    const tour = JSON.parse(tourCached);
+    return res.status(200).json({
+      status: "success",
+      data: {
+        tour,
+      },
+    });
+  }
+
+  console.log("cache miss");
+
+  // 3) if not exist get data from database
   const tour = await Tour.findById(req.params.id).populate("reviews");
   if (!tour) {
     return next(new AppError("No tour found with that ID", 404));
   }
+  // 4) save data to redis
+  await redisClient.setEx(tourId, 180000, JSON.stringify(tour));
+
+  // 5) return response
   res.status(200).json({
     status: "success",
     data: {
