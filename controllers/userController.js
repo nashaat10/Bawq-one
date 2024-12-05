@@ -51,7 +51,7 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
+exports.getAllUsers = catchAsync(async (_req, res, _next) => {
   const users = await User.find();
   res.status(200).json({
     status: "Success",
