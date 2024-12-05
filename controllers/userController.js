@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const multer = require("multer");
+const redis = require("redis");
 
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -13,6 +14,12 @@ const multer = require("multer");
 //     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
 //   },
 // });
+
+const redisClient = redis.createClient();
+redisClient.on("error", (err) => {
+  console.log(err);
+});
+redisClient.connect();
 
 const multerStorage = multer.memoryStorage({});
 
@@ -56,11 +63,29 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const userId = req.params.id;
+
+  const cashedUser = await redisClient.get(userId);
+  if (cashedUser) {
+    console.log("cache hit");
+    const user = JSON.parse(cashedUser);
+    return res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
+    });
+  }
+
+  console.log("cache miss");
+
+  const user = await User.findById(userId);
 
   if (!user) {
-    next(new AppError("no user found with this id ", 401));
+    return next(new AppError("no user found with this id ", 401));
   }
+
+  await redisClient.setEx(userId, 180, JSON.stringify(user));
 
   res.status(200).json({
     status: "success",
