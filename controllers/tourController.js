@@ -96,9 +96,6 @@ exports.createTour = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  // if (!Types.ObjectId.isValid(tourId)) {
-  //   return next(new AppError("Invalid ID", 400));
-  // }
   const tourId = req.params.id;
 
   // 1) get data from redis if exist
@@ -124,7 +121,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
     return next(new AppError("No tour found with that ID", 404));
   }
   // 4) save data to redis
-  await redisClient.setEx(tourId, 180000, JSON.stringify(tour));
+  await redisClient.setEx(tourId, 180, JSON.stringify(tour));
 
   // 5) return response
   res.status(200).json({
